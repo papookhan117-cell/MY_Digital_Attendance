@@ -73,6 +73,7 @@ create policy da_deletions_delete on public.da_attendance_deletions for delete t
 create index if not exists da_attendance_owner_date_idx on public.da_attendance (owner_id, date);
 -- Schema additions for staff schedules, late and absent records. Safe to run on an existing project.
 alter table public.da_employees add column if not exists schedule_category text not null default 'peon';
+alter table public.da_employees add column if not exists photo_data text;
 alter table public.da_attendance alter column check_in set default '';
 alter table public.da_attendance alter column check_in drop not null;
 alter table public.da_attendance add column if not exists late_minutes integer not null default 0;

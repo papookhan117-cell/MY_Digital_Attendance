@@ -27,7 +27,7 @@ For first setup, keep an internet connection on until the local app files and fa
 ## Attendance behavior
 
 - Every employee's attendance is one daily summary: one required check-in and an optional check-out.
-- Each employee is assigned Peon / Masi, Management, or Teaching Staff and checked against that group’s start time plus one shared grace period. A scan records Present or Late and stores the scheduled time, check-in time, and minutes late.
+- Each employee is assigned Support Staff, Management Staff, or Teaching Staff and checked against that group’s start time plus one shared grace period. A scan records Present or Late and stores the scheduled time, check-in time, and minutes late.
 - Check-out updates that day's summary; it cannot create a record without a check-in and can only be saved once per date.
 - **Mark absent remaining** writes Absent for active employees with no record today. If one arrives later and scans, that same row becomes Present or Late. Individual attendance rows can be deleted from a daily report; deleting one allows a new check-in for that day.
 - Employees are not deleted. Deactivate an employee to reject both recognition and QR attendance while preserving all saved history.
@@ -36,11 +36,11 @@ For first setup, keep an internet connection on until the local app files and fa
 
 ## Modules
 
-- Employee registration and editing, staff category assignment, face enrollment, active status, generated QR display, and printable QR card. Adding, editing, or deactivating employees requires an unlocked admin session.
+- Employee registration and editing, optional compressed local profile photo, staff category assignment, face enrollment, active status, generated QR display, and printable QR card. Adding, editing, or deactivating employees requires an unlocked admin session.
 - Automatically migrates records from the provided starter app's `OfflineFaceAttendanceDB` into the new local database on first launch, preserving known employees and valid attendance history.
 - Live face matching with locally bundled face-api runtime and Tiny Face Detector, tiny 68-point landmark and face-recognition models.
 - Live QR detection with Chrome's built-in `BarcodeDetector` on the camera stream, with the bundled scanner as a QR-only fallback when needed; QR image generation uses a bundled library.
-- Dashboard greeting with live clock; password-protected Admin Dashboard for company information, group start times and shared late grace period; employee schedule assignment overview; front/back camera selection; daily and monthly reports, row deletion, CSV export and native share sheet for reports (choose Gmail or another installed app), JSON backup and validated merge restore.
+- Dashboard greeting with live clock and clickable employee/attendance totals; employee monthly profiles with Present/Late/Absent totals; mobile back navigation, an in-app update checker, and side-by-side scanner/result with live marked/remaining counts; password-protected Admin Dashboard for company information, group start times and shared late grace period; employee schedule assignment overview; front/back camera selection; daily and monthly reports, row deletion, CSV export and native share sheet for reports (choose Gmail or another installed app), JSON backup and validated merge restore.
 - PWA manifest and service-worker cache for offline operation after the initial load.
 - Optional shared-device sync through Supabase Auth and Row Level Security. It is not active until the owner creates the free project, runs the SQL setup, and signs in on each device.
 

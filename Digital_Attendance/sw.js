@@ -1,4 +1,4 @@
-const CACHE='digital-attendance-v6';
+const CACHE='digital-attendance-v9';
 const ASSETS=['./','./index.html','./manifest.webmanifest','./css/style.css','./js/app.js','./js/database.js','./js/employees.js','./js/attendance.js','./js/face-recognition.js','./js/sync.js','./supabase/setup.sql','./libraries/face-api.min.js','./libraries/html5-qrcode.min.js','./libraries/qrcode.min.js','./models/tiny_face_detector_model-weights_manifest.json','./models/tiny_face_detector_model.bin','./models/face_landmark_68_tiny_model-weights_manifest.json','./models/face_landmark_68_tiny_model.bin','./models/face_recognition_model-weights_manifest.json','./models/face_recognition_model.bin','./assets/icons/icon.svg'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
