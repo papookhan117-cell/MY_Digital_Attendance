@@ -20,7 +20,7 @@ create table if not exists public.da_attendance (
   date date not null,
   check_in text not null,
   check_out text,
-  status text not null check (status = 'Present'),
+  status text not null check (status in ('Present','Late','Absent')),
   method text not null check (method in ('Face','QR')),
   check_out_method text check (check_out_method is null or check_out_method in ('Face','QR')),
   device_id text not null,
@@ -74,9 +74,12 @@ create index if not exists da_attendance_owner_date_idx on public.da_attendance 
 -- Schema additions for staff schedules, late and absent records. Safe to run on an existing project.
 alter table public.da_employees add column if not exists schedule_category text not null default 'peon';
 alter table public.da_employees add column if not exists photo_data text;
+alter table public.da_employees add column if not exists gender text not null default '';
+
 alter table public.da_attendance alter column check_in set default '';
 alter table public.da_attendance alter column check_in drop not null;
 alter table public.da_attendance add column if not exists late_minutes integer not null default 0;
+alter table public.da_attendance add column if not exists late_seconds integer not null default 0;
 alter table public.da_attendance add column if not exists scheduled_time text not null default '';
 alter table public.da_attendance add column if not exists grace_minutes integer not null default 0;
 alter table public.da_attendance drop constraint if exists da_attendance_status_check;
@@ -101,3 +104,11 @@ drop policy if exists da_settings_update on public.da_settings;
 create policy da_settings_update on public.da_settings for update to authenticated using ((select auth.uid())=owner_id) with check ((select auth.uid())=owner_id);
 drop policy if exists da_settings_delete on public.da_settings;
 create policy da_settings_delete on public.da_settings for delete to authenticated using ((select auth.uid())=owner_id);
+
+-- Enable instant cross-device refresh through Supabase Realtime.
+alter table public.da_employees replica identity full;
+alter table public.da_attendance replica identity full;
+alter table public.da_settings replica identity full;
+do $$ begin alter publication supabase_realtime add table public.da_employees; exception when duplicate_object then null; end $$;
+do $$ begin alter publication supabase_realtime add table public.da_attendance; exception when duplicate_object then null; end $$;
+do $$ begin alter publication supabase_realtime add table public.da_settings; exception when duplicate_object then null; end $$;

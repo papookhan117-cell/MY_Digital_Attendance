@@ -30,23 +30,23 @@ For first setup, keep an internet connection on until the local app files and fa
 - Each employee is assigned Support Staff, Management Staff, or Teaching Staff and checked against that group’s start time plus one shared grace period. A scan records Present or Late and stores the scheduled time, check-in time, and minutes late.
 - Check-out updates that day's summary; it cannot create a record without a check-in and can only be saved once per date.
 - **Mark absent remaining** writes Absent for active employees with no record today. If one arrives later and scans, that same row becomes Present or Late. Individual attendance rows can be deleted from a daily report; deleting one allows a new check-in for that day.
-- Employees are not deleted. Deactivate an employee to reject both recognition and QR attendance while preserving all saved history.
+- Employees with attendance history cannot be deleted; deactivate them to reject recognition and QR attendance while preserving history. Employees with no history can be deleted after confirmation.
 - Employee IDs are case-insensitively unique and remain fixed once saved so historical attendance stays linked.
 - CSV exports actual attendance records, with separate employee ID, name, date, status, check-in/out times and methods. Employee IDs are exported as quoted text for Excel / Access imports.
 
 ## Modules
 
-- Employee registration and editing, optional compressed local profile photo, staff category assignment, face enrollment, active status, generated QR display, and printable QR card. Adding, editing, or deactivating employees requires an unlocked admin session.
+- Employee registration and editing, optional compressed local profile photo, staff category assignment, face enrollment, active status, generated employee-ID QR display, and one-sheet print of all employee QR codes. Adding employees is open to staff; editing, activation, deactivation and deletion are admin protected. Face enrollment is optional, so QR-only records can be created and faces added later.
 - Automatically migrates records from the provided starter app's `OfflineFaceAttendanceDB` into the new local database on first launch, preserving known employees and valid attendance history.
 - Live face matching with locally bundled face-api runtime and Tiny Face Detector, tiny 68-point landmark and face-recognition models.
 - Live QR detection with Chrome's built-in `BarcodeDetector` on the camera stream, with the bundled scanner as a QR-only fallback when needed; QR image generation uses a bundled library.
-- Dashboard greeting with live clock and clickable employee/attendance totals; employee monthly profiles with Present/Late/Absent totals; mobile back navigation, an in-app update checker, and side-by-side scanner/result with live marked/remaining counts; password-protected Admin Dashboard for company information, group start times and shared late grace period; employee schedule assignment overview; front/back camera selection; daily and monthly reports, row deletion, CSV export and native share sheet for reports (choose Gmail or another installed app), JSON backup and validated merge restore.
+- Dashboard greeting with live clock and clickable employee/attendance totals; employee monthly profiles with Present/Late/Absent totals; mobile back navigation, an in-app update checker, and portrait camera/results scanner layout on phones; password-protected Admin Dashboard for company information, group start times and shared late grace period; employee schedule assignment overview; front/back camera selection; daily and monthly reports, row deletion, CSV and SMS-ready Excel export (only employees with saved attendance are included), JSON backup and validated merge restore.
 - PWA manifest and service-worker cache for offline operation after the initial load.
-- Optional shared-device sync through Supabase Auth and Row Level Security. It is not active until the owner creates the free project, runs the SQL setup, and signs in on each device.
+- Optional shared-device sync through Supabase Auth, Row Level Security, and Supabase Realtime. Run the updated supabase/setup.sql in the Supabase SQL Editor to add the gender/late-seconds columns and enable instant table updates, then sign in on each device. A five-second sync check remains as fallback; local attendance continues offline.
 
 ## Admin access
 
-On first use, open **Admin Dashboard** and create a password (8 or more characters). The app stores a salted PBKDF2 password verifier, not the plain password. Admin access locks after 10 minutes without activity or when you press **Lock admin**. Company details, schedules, and the password verifier sync to the authenticated Supabase account when sync is configured. If sync is not configured, each browser keeps its own settings and admin password. The password gate controls the app interface; it does not encrypt local attendance data or replace server-side authentication. Keep the device and browser profile protected.
+On first use, open **Admin Dashboard** and create a password (8 or more characters). The app stores a salted PBKDF2 password verifier, not the plain password. Admin access locks after 10 minutes without activity or when you press **Lock admin**. Company details, schedules, and the password verifier sync to the authenticated Supabase account when sync is configured. If sync is not configured, each browser keeps its own settings and admin password. The admin session survives a page refresh for up to 10 minutes and renews while you use the app; **Lock admin** logs out immediately. The password gate controls the app interface; it does not encrypt local attendance data or replace server-side authentication. Keep the device and browser profile protected.
 
 ## Optional free sync between devices
 
@@ -62,6 +62,12 @@ This adds a remote database, changing the original local-only requirement. Emplo
 While offline, records are written to the device's IndexedDB and wait for a connection. If two devices each mark the same employee while both are offline, both can temporarily show a locally saved check-in. On reconnect the unique cloud key keeps one daily record; the first record accepted by the shared database wins, and the other device replaces its pending copy with that shared record. Keep backups before testing sync or clearing data.
 
 The current Supabase Free plan has usage limits (including 500 MB per project and 5 GB egress) and may pause projects after seven days of low activity. Sync therefore is useful for a small deployment but is not a guaranteed always-on service. A paused project must be restored from its dashboard. Check current plan terms before relying on it for payroll or other critical records. Source: [Supabase Free plan and limits](https://supabase.com/pricing), [Free project pausing](https://supabase.com/docs/guides/platform/free-project-pausing).
+
+## Licensing foundation status
+
+The update includes a Supabase schema and Edge Function for centrally assigned serial IDs (`DA-000001`…), per-installation records, customer/device activation states, block/unblock, usage timestamps, an owner-only control panel, and pending new-device approval. Owner access is granted only by inserting the owner Auth user UUID in `da_license_owner_accounts`; the service-role key is read only by the server function. The app includes a licensing panel and sends requests only after you configure Supabase and deploy that function.
+
+The client and server code now supports signed seven-day offline tickets, customer/device status checks, owner controls, and restore approval bound to the signed-in customer's serial. The app update checker also checks for a new website version when it reconnects, is reopened, or is in use. **These controls are not live until a Supabase project is configured, signing keys are added as server secrets, and the customer website ZIP is built and hosted.** The included local-development build intentionally leaves licensing optional; use `Build-CustomerSite.ps1` for a customer website build with mandatory licensing. Browser installation IDs identify an app installation, not permanent hardware, and can be reset by an experienced user. Attendance stays local and is not erased when a license is blocked.
 
 ## Backup and privacy
 
@@ -93,9 +99,9 @@ No employee data, generated backups or camera captures belong in the source repo
 
 ## Developer
 
-Usaid ul Hassan · [0304-0307828](tel:03040307828) · [usaidulhassan@gmail.com](mailto:usaidulhassan@gmail.com)
+UH DATA TECH SOLUTIONS · Hyderabad, Sindh, Pakistan · Usaid ul Hassan · [0304-0307828](tel:03040307828) · [usaidulhassan@gmail.com](mailto:usaidulhassan@gmail.com)
 
 ## Verification status
 
-Source syntax, local resource paths and service-worker precache entries are checked before delivery. Camera-based face and QR recognition, Android installation, and offline behavior need to be verified on actual supported devices with camera permissions. No liveness detection is claimed.
+JavaScript syntax, project references and service-worker precache entries were checked before delivery. The updated UI was opened locally; employee search and license panel rendering were smoke-checked. Automated JavaScript syntax and required local resource checks passed. No real attendance or cloud license changes were made during these checks. Camera-based face and QR recognition, Android installation, and offline behavior still need verification on actual supported devices with camera permissions. No liveness detection is claimed.
 
